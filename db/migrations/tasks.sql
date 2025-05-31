@@ -10,6 +10,7 @@ CREATE TABLE tasks (
   detail text,
   status task_status not null,
   task_group_id bigint not null references task_groups(id),
+  owner_user_id bigint not null references users(id),
   created_at timestamp not null default now(),
   updated_at timestamp not null default now()
 );

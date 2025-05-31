@@ -52,48 +52,6 @@ func (ns NullOauthProvider) Value() (driver.Value, error) {
 	return string(ns.OauthProvider), nil
 }
 
-type OwnerType string
-
-const (
-	OwnerTypeUserGroup OwnerType = "user_group"
-	OwnerTypeUser      OwnerType = "user"
-)
-
-func (e *OwnerType) Scan(src interface{}) error {
-	switch s := src.(type) {
-	case []byte:
-		*e = OwnerType(s)
-	case string:
-		*e = OwnerType(s)
-	default:
-		return fmt.Errorf("unsupported scan type for OwnerType: %T", src)
-	}
-	return nil
-}
-
-type NullOwnerType struct {
-	OwnerType OwnerType `json:"owner_type"`
-	Valid     bool      `json:"valid"` // Valid is true if OwnerType is not NULL
-}
-
-// Scan implements the Scanner interface.
-func (ns *NullOwnerType) Scan(value interface{}) error {
-	if value == nil {
-		ns.OwnerType, ns.Valid = "", false
-		return nil
-	}
-	ns.Valid = true
-	return ns.OwnerType.Scan(value)
-}
-
-// Value implements the driver Valuer interface.
-func (ns NullOwnerType) Value() (driver.Value, error) {
-	if !ns.Valid {
-		return nil, nil
-	}
-	return string(ns.OwnerType), nil
-}
-
 type TaskStatus string
 
 const (
@@ -186,6 +144,7 @@ type Task struct {
 	Detail      sql.NullString `json:"detail"`
 	Status      TaskStatus     `json:"status"`
 	TaskGroupID int64          `json:"task_group_id"`
+	OwnerUserID int64          `json:"owner_user_id"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 }
@@ -197,11 +156,15 @@ type TaskAssignee struct {
 }
 
 type TaskGroup struct {
-	ID               int64         `json:"id"`
-	Name             string        `json:"name"`
-	OwnerType        OwnerType     `json:"owner_type"`
-	OwnerUserGroupID sql.NullInt64 `json:"owner_user_group_id"`
-	OwnerUserID      sql.NullInt64 `json:"owner_user_id"`
+	ID          int64         `json:"id"`
+	Name        string        `json:"name"`
+	OwnerUserID sql.NullInt64 `json:"owner_user_id"`
+}
+
+type TaskGroupMember struct {
+	ID          int64 `json:"id"`
+	TaskGroupID int64 `json:"task_group_id"`
+	UserID      int64 `json:"user_id"`
 }
 
 type User struct {
@@ -214,15 +177,4 @@ type User struct {
 	Status         UserStatus     `json:"status"`
 	CreatedAt      time.Time      `json:"created_at"`
 	UpdatedAt      time.Time      `json:"updated_at"`
-}
-
-type UserGroup struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
-}
-
-type UserGroupMember struct {
-	ID      int64 `json:"id"`
-	UserID  int64 `json:"user_id"`
-	GroupID int64 `json:"group_id"`
 }
