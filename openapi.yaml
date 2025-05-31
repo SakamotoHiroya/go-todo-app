@@ -1,0 +1,365 @@
+openapi: 3.0.0
+info:
+  title: Simple TODO API
+  version: 1.0.0
+
+paths:
+
+  /users:
+    post:
+      summary: ユーザ登録
+      responses:
+        '201':
+          description: ユーザ登録成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: 予期しないエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /login:
+    post:
+      summary: ログイン
+      responses:
+        '200':
+          description: ログイン成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        default:
+          description: 予期しないエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /task-groups:
+    post:
+      summary: タスクグループ作成
+      security:
+        - jwtAuth: []
+      responses:
+        '201':
+          description: グループ作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskGroup'
+        default:
+          description: 予期しないエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: 所属グループ一覧取得
+      security:
+        - jwtAuth: []
+      responses:
+        '200':
+          description: グループ一覧取得成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskGroup'
+        default:
+          description: 予期しないエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /task-groups/{groupId}:
+    parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: グループ詳細取得
+      security:
+        - jwtAuth: []
+      responses:
+        '200':
+          description: グループ詳細取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskGroupDetail'
+        default:
+          description: 予期しないエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: グループ削除
+      security:
+        - jwtAuth: []
+      responses:
+        '204':
+          description: グループ削除成功
+        default:
+          description: 予期しないエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /task-groups/{groupId}/users:
+    parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      summary: ユーザ招待
+      security:
+        - jwtAuth: []
+      responses:
+        '200':
+          description: ユーザ招待成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskGroupDetail'
+        default:
+          description: 予期しないエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /task-groups/{groupId}/users/{userId}:
+    parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    delete:
+      summary: グループからユーザを削除
+      security:
+        - jwtAuth: []
+      responses:
+        '204':
+          description: ユーザ削除成功
+        default:
+          description: 予期しないエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /task-groups/{groupId}/tasks:
+    parameters:
+      - name: groupId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: タスク一覧取得
+      security:
+        - jwtAuth: []
+      responses:
+        '200':
+          description: タスク一覧取得成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+        default:
+          description: 予期しないエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: タスク作成
+      security:
+        - jwtAuth: []
+      responses:
+        '201':
+          description: タスク作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        default:
+          description: 予期しないエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /tasks/{taskId}:
+    parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: タスク詳細取得
+      security:
+        - jwtAuth: []
+      responses:
+        '200':
+          description: タスク詳細取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        default:
+          description: 予期しないエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: タスク更新
+      security:
+        - jwtAuth: []
+      responses:
+        '200':
+          description: タスク更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        default:
+          description: 予期しないエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: タスク削除
+      security:
+        - jwtAuth: []
+      responses:
+        '204':
+          description: タスク削除成功
+        default:
+          description: 予期しないエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /tasks/{taskId}/status:
+    parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+    patch:
+      summary: タスクステータス変更
+      security:
+        - jwtAuth: []
+      responses:
+        '200':
+          description: ステータス変更成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        default:
+          description: 予期しないエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/{userId}:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+    delete:
+      summary: ユーザ削除
+      security:
+        - jwtAuth: []
+      responses:
+        '204':
+          description: ユーザ削除成功
+        default:
+          description: 予期しないエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+    Token:
+      type: object
+      properties:
+        token:
+          type: string
+    TaskGroup:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    TaskGroupDetail:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
